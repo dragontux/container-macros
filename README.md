@@ -15,7 +15,7 @@ Included are array list (vector) and linked list templates.
 - `int NAME_next(NAME *list, NAME_iterator *iter)` - moves `iter` to the next position, returns `0` if there are no more elements
 - `TYPE NAME_value(NAME *list, NAME_iterator *iter)` - returns the value at the current position of `iter`
 - `int NAME_insert_after(NAME *list, TYPE value, NAME_iterator *iter)` - inserts `value` to `list` right after the position `iter` points to
-- `TYPE NAME_pop(NAME *list, NAME_iterator *iter)` - removes the item at one position after `iter` from `list` and returns it; undefined when `iter` points to the last item in the list
+- `TYPE NAME_pop_after(NAME *list, NAME_iterator *iter)` - removes the item at one position after `iter` from `list` and returns it; undefined when `iter` points to the last item in the list
 
 `NAME_list *` also has a field, `int len`, accessible like `list->len`. It represents the current length of the list and generally shouldn't be modified.
 
@@ -66,5 +66,8 @@ List inserts, pops, gets and sets on head and tail are O(1), O(n) elsewhere.
 
 To manually iterate a llist, do `NAME_pair *p; for (p=list->first; p; p=p->cdr) { do_something(p->car); }`
 
+---
+
+All code compiles with GCC with the following CFLAGS: `-Wall -Werror -ansi -pedantic -pedantic-errors`
 
 See [list-example.c](list-example.c) for examples and more documentation.
