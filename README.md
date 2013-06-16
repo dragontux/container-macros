@@ -13,9 +13,10 @@ Included are array list (vector) and linked list templates.
 - `void NAME_set(NAME *list, TYPE value, int pos)` - sets the item on position `pos` to `value`
 - `NAME_iterator NAME_iterate(NAME *list)` - creates a new list iterator, `NAME_next` must be called before accessing the value at its position
 - `int NAME_next(NAME *list, NAME_iterator *iter)` - moves `iter` to the next position, returns `0` if there are no more elements
-- `TYPE NAME_value(NAME *list, NAME_iterator *iter)` - returns the value at the current position of `iter`
-- `int NAME_insert_after(NAME *list, TYPE value, NAME_iterator *iter)` - inserts `value` to `list` right after the position `iter` points to
-- `TYPE NAME_pop_after(NAME *list, NAME_iterator *iter)` - removes the item at one position after `iter` from `list` and returns it; undefined when `iter` points to the last item in the list
+- `TYPE NAME_get_at(NAME *list, NAME_iterator iter)` - returns the value at the current position of `iter`
+- `void NAME_set_at(NAME *list, TYPE value, NAME_iterator iter)` - sets the item at the current position of `iter` to `value`
+- `int NAME_insert_after(NAME *list, TYPE value, NAME_iterator iter)` - inserts `value` to `list` right after the position `iter` points to
+- `TYPE NAME_pop_after(NAME *list, NAME_iterator iter)` - removes the item at one position after `iter` from `list` and returns it; undefined when `iter` points to the last item in the list
 
 `NAME_list *` also has a field, `int len`, accessible like `list->len`. It represents the current length of the list and generally shouldn't be modified.
 
@@ -41,8 +42,6 @@ List inserts or pops to anywhere but the tail are O(n), as the elements must be 
 
 `NAME_iterator` is actually `int`. It is an index to the list. The `NAME_iterate` function returns -1. Inserting or removing an element prior to or on the iterator's position invalidates the iterator.
 
-`NAME_insert_after` and `NAME_pop_after` are just as efficient as `NAME_insert` and `NAME_pos`. In fact, the latter two functions are called from the former.
-
 To manually iterate an alist, do `int i; for (i=0; i<list->len; ++i) { do_something(list->arr[i]); }`
 
 ### llist.h
@@ -62,7 +61,7 @@ List inserts, pops, gets and sets on head and tail are O(1), O(n) elsewhere.
 
 `NAME_iterator` is actually `NAME_pair *`. The iterator is the element it points to. `NAME_iterate` returns `NULL` and `NAME_next` returns `list->head` when given `NULL` as the iterator. Popping the item at the current position of the iterator from the list invalidates the iterator.
 
-`NAME_insert_after` and `NAME_pop_after` are O(1) regardless of the position the iterator is at..
+`NAME_get_at`, `NAME_set_at`, `NAME_insert_after` and `NAME_pop_after` are O(1) regardless of the position the iterator is at.
 
 To manually iterate a llist, do `NAME_pair *p; for (p=list->first; p; p=p->cdr) { do_something(p->car); }`
 

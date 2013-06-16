@@ -41,13 +41,18 @@ void print_list(int_list *list)
 	 */
 	for (i = int_list_iterate(list); int_list_next(list, &i); ) {
 		/* 
-		 * int int_list_value(int list *, int_list_iterator *) will retrieve
+		 * int int_list_get_at(int list *, int_list_iterator) will retrieve
 		 * the value in the list stored at the current position of the iterator.
 		 *
 		 * This is undefined for new iterators that haven't been moved to the first
 		 * element with int_list_next yet.
+		 *
+		 * like int_list_get_at is the iterator equivalent to int_list_get,
+		 * int_list_set_at is equivalent to int_list_set.
+		 * There are also int_list_insert_after and int_list_pop_after, which
+		 * work on the element one position after the iterator's current position.
 		 */
-		printf("%d ", int_list_value(list, &i));
+		printf("%d ", int_list_get_at(list, i));
 	}
 	/* 
 	 * int list->len is the length of the list.

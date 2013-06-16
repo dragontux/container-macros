@@ -37,12 +37,14 @@
  *     right before the first element.
  * NAME_next(struct NAME *A, NAME_iterator *I): Points the iterator to the
  *     next position in the list. Returns 0 if iterator is already on the end.
- * NAME_value(struct NAME *A, NAME_iterator *I): Returns the value at the
+ * NAME_get_at(struct NAME *L, NAME_iterator P): Returns the value at the
  *     current position of the iterator.
- * NAME_insert_after(struct NAME *A, TYPE I, NAME_iterator *P): Inserts the
+ * NAME_set_at(struct NAME *L, TYPE I, NAME_iterator P): Assigns I to the
+ *     element at the current position of the iterator.
+ * NAME_insert_after(struct NAME *A, TYPE I, NAME_iterator P): Inserts the
  *     element I as a newly malloc'd node into list L at the next position
  *     after the one P points to. Equivalent to NAME_insert(L, *P+1).
- * NAME_pop_after(struct NAME *L, NAME_iterator *P): Removes the element at the
+ * NAME_pop_after(struct NAME *L, NAME_iterator P): Removes the element at the
  *     next position after the one P points to and returns it. Equivalent to
  *     NAME_pop(L, *P+1). Undefined when P points to the last item in the list.
  *
@@ -82,9 +84,10 @@
 	int N##_resize(struct N *s, int size); \
 	N##_iterator N##_iterate(struct N *s); \
 	int N##_next(struct N *s, N##_iterator *iter); \
-	T N##_value(struct N *s, N##_iterator *iter); \
-	int N##_insert_after(struct N *s, T item, N##_iterator *iter); \
-	T N##_pop_after(struct N *s, N##_iterator *iter)
+	T N##_get_at(struct N *s, N##_iterator iter); \
+	void N##_set_at(struct N *s, T item, N##_iterator iter); \
+	int N##_insert_after(struct N *s, T item, N##_iterator iter); \
+	T N##_pop_after(struct N *s, N##_iterator iter)
 
 /* defines functions for an arraylist with elements of type T named N */
 #define ALIST(T, N) \
@@ -173,17 +176,21 @@
 		++*iter; \
 		return 1; \
 	} \
-	T N##_value(struct N *s, N##_iterator *iter) \
+	T N##_get_at(struct N *s, N##_iterator iter) \
 	{ \
-		return s->arr[*iter]; \
+		return s->arr[iter]; \
 	} \
-	int N##_insert_after(struct N *s, T item, N##_iterator *iter) \
+	void N##_set_at(struct N *s, T item, N##_iterator iter) \
 	{ \
-		return N##_insert(s, item, *iter+1); \
+		s->arr[iter] = item; \
 	} \
-	T N##_pop_after(struct N *s, N##_iterator *iter) \
+	int N##_insert_after(struct N *s, T item, N##_iterator iter) \
 	{ \
-		return N##_pop(s, *iter+1); \
+		return N##_insert(s, item, iter+1); \
+	} \
+	T N##_pop_after(struct N *s, N##_iterator iter) \
+	{ \
+		return N##_pop(s, iter+1); \
 	} \
 	struct N /* to avoid extra semicolon outside of a function */
 

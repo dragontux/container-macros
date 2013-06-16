@@ -35,12 +35,14 @@
  *     right before the first element.
  * NAME_next(struct NAME *L, NAME_iterator *I): Makes the iterator point to the
  *     next position in the list. Returns 0 if iterator is already on the end.
- * NAME_value(struct NAME *L, NAME_iterator *I): Returns the value at the
+ * NAME_get_at(struct NAME *L, NAME_iterator P): Returns the value at the
  *     current position of the iterator.
- * NAME_insert_after(struct NAME *L, TYPE I, NAME_iterator *P): Inserts the
+ * NAME_set_at(struct NAME *L, TYPE I, NAME_iterator P): Assigns I to the
+ *     element at the current position of the iterator.
+ * NAME_insert_after(struct NAME *L, TYPE I, NAME_iterator P): Inserts the
  *     element I as a newly malloc'd node into list L at the next position
  *     after the one P points to.
- * NAME_pop_after(struct NAME *L, NAME_iterator *P): Removes the element at the
+ * NAME_pop_after(struct NAME *L, NAME_iterator P): Removes the element at the
  *     next position after the one P points to and returns it. Undefined when P
  *     points to the last item in the list.
  *
@@ -81,9 +83,10 @@
 	void N##_set(struct N *s, T item, int pos); \
 	N##_iterator N##_iterate(struct N *s); \
 	int N##_next(struct N *s, N##_iterator *iter); \
-	T N##_value(struct N *s, N##_iterator *iter); \
-	int N##_insert_after(struct N *s, T item, N##_iterator *iter); \
-	T N##_pop_after(struct N *s, N##_iterator *iter)
+	T N##_get_at(struct N *s, N##_iterator iter); \
+	void N##_set_at(struct N *s, T item, N##_iterator iter); \
+	int N##_insert_after(struct N *s, T item, N##_iterator iter); \
+	T N##_pop_after(struct N *s, N##_iterator iter)
 
 /* defines functions for a list with elements of type T named N */
 #define LLIST(T, N) \
@@ -223,44 +226,48 @@
 		*iter = (*iter)->cdr; \
 		return 1; \
 	} \
-	T N##_value(struct N *s, N##_iterator *iter) \
+	T N##_get_at(struct N *s, N##_iterator iter) \
 	{ \
-		return (*iter)->car; \
+		return iter->car; \
 	} \
-	int N##_insert_after(struct N *s, T item, N##_iterator *iter) \
+	void N##_set_at(struct N *s, T item, N##_iterator iter) \
+	{ \
+		iter->car = item; \
+	} \
+	int N##_insert_after(struct N *s, T item, N##_iterator iter) \
 	{ \
 		struct N##_pair *newp; \
 		newp = N##_pair_new(item); \
 		if (!newp) return 0; \
 		++s->len; \
-		if (!*iter) { \
+		if (!iter) { \
 			newp->cdr = s->first; \
-			if (!s->last) s->last = *iter; \
-			s->first = *iter; \
+			if (!s->last) s->last = iter; \
+			s->first = iter; \
 			return 1; \
 		} \
-		newp->cdr = (*iter)->cdr; \
-		(*iter)->cdr = newp; \
-		if (*iter == s->last) { \
+		newp->cdr = iter->cdr; \
+		iter->cdr = newp; \
+		if (iter == s->last) { \
 			s->last = newp; \
 		} \
 		return 1; \
 	} \
-	T N##_pop_after(struct N *s, N##_iterator *iter) \
+	T N##_pop_after(struct N *s, N##_iterator iter) \
 	{ \
 		T val; \
 		struct N##_pair *temp; \
 		--s->len; \
-		if (!*iter) { \
+		if (!iter) { \
 			temp = s->first; \
 			val = temp->car; \
 			s->first = temp->cdr; \
 			if (!s->first) s->last = NULL; \
 		} else { \
-			temp = (*iter)->cdr; \
+			temp = iter->cdr; \
 			val = temp->car; \
-			(*iter)->cdr = temp->cdr; \
-			if (temp == s->last) s->last = (*iter); \
+			iter->cdr = temp->cdr; \
+			if (temp == s->last) s->last = iter; \
 		} \
 		free(temp); \
 		return val; \
