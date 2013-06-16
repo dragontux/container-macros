@@ -54,6 +54,7 @@ In addition to `len`, a llist struct has the fields:
 A struct `NAME_pair` is also defined along with the list. It holds these fields:
 - `TYPE *car` - the value of the list element
 - `NAME_pair *cdr` - the next element on the list, NULL if this is the last element
+
 Associated function:
 - `NAME_pair *NAME_pair_new(TYPE value)` - allocates a new list element with the value `value`
 
