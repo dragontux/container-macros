@@ -93,6 +93,8 @@ Types defined:
     - `int len` - the number of map entries
     - `int cap` - the number of buckets
     - `NAME_entry *buckets` - the hashmap buckets
+    - `double max_load` - the load (`len/cap`) before growing to double size, default 2.0; 0 to disable automatic growth at insert
+    - `double min_load` - the load (`len/cap`) before resizing to half size, default 0.5; 0 to disable automatic shrinking at delete
 - `NAME_bucket` - a bucket with entries for hash collisions; fields:
     - `int len` - the number of entries in the bucket
     - `int cap` - the length of the `entries` array
