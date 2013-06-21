@@ -90,8 +90,8 @@ Macros:
 
 Types defined:
 - `NAME` - the hashmap; fields:
-    - `int len` - the number of map entries; has no effect on map functions
-    - `int cap` - the number of buckets; do not modify
+    - `int len` - the number of map entries
+    - `int cap` - the number of buckets
     - `NAME_entry *buckets` - the hashmap buckets
 - `NAME_bucket` - a bucket with entries for hash collisions; fields:
     - `int len` - the number of entries in the bucket
@@ -120,7 +120,7 @@ Functions defined:
 - `KEY_TYPE NAME_key_at(const NAME *map, NAME_iterator iter)` - returns the key at the current position of the iterator
 - `VALUE_TYPE NAME_value_at(const NAME *map, NAME_iterator iter)` - returns the value at the current position of the iterator
 
-The hashmap is automatically resized to twice its current capacity once its load reaches 0.8 and to half its size when the load falls under 0.2.
+The hashmap is automatically resized to twice its current capacity once its load reaches 2.0 and to half its size when the load falls under 0.5.
 
 See [map-example.c](map-example.c) for map examples and more documentation.
 
