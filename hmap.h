@@ -9,8 +9,8 @@
 
 #define HMAP_BUCKET_SIZE 1 /* starting bucket size */
 #define HMAP_MIN_CAP 16 /* minimum number of buckets when autoresizing down */
-#define HMAP_MAX_LOAD 0.8 /* load before resizing; 0 to disable resizing */
-#define HMAP_MIN_LOAD 0.2 /* when to autoresize down; must be less than HMAP_MAX_LOAD/2 */
+#define HMAP_MAX_LOAD 0.8 /* max load before growing to twice the current capacity; negative to disable */
+#define HMAP_MIN_LOAD 0.2 /* min load before shrinking to half; negative to disable; must be less than HMAP_MAX_LOAD/2 */
 
 #define HMAP_PROTO(K, V, N) \
 	typedef struct N##_entry { uint32_t hash; K key; V value; } N##_entry; \
@@ -153,7 +153,7 @@
 		bucket->entries[bucket->len].hash = hash; \
 		++bucket->len; \
 		++map->len; \
-		if (map->len*1.0/map->cap > HMAP_MAX_LOAD) { \
+		if (HMAP_MAX_LOAD >= 0 && map->len*1.0/map->cap > HMAP_MAX_LOAD) { \
 			N##_resize(map, 2*map->cap); \
 		} \
 		return 1; \
@@ -170,7 +170,7 @@
 				for (; i+1<bucket->len; ++i) bucket->entries[i] = bucket->entries[i+1]; \
 				--bucket->len; \
 				--map->len; \
-				if (map->len*1.0/map->cap < HMAP_MIN_LOAD && map->cap > HMAP_MIN_CAP) { \
+				if (HMAP_MIN_LOAD >= 0 && map->len*1.0/map->cap < HMAP_MIN_LOAD && map->cap > HMAP_MIN_CAP) { \
 					N##_resize(map, map->cap/2>HMAP_MIN_CAP ? map->cap/2 : HMAP_MIN_CAP); \
 				} \
 				return 1; \
