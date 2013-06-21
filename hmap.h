@@ -15,7 +15,7 @@
 #define HMAP_PROTO(K, V, N) \
 	typedef struct N##_entry { uint32_t hash; K key; V value; } N##_entry; \
 	typedef struct N##_bucket { int len; int cap; struct N##_entry *entries; } N##_bucket; \
-	typedef struct N { int len; int cap; struct N##_bucket *buckets; } N; \
+	typedef struct N { int len; int cap; struct N##_bucket *buckets; double max_load; double min_load; } N; \
 	typedef struct N##_iterator { int bucket; int entry; } N##_iterator; \
 	N *N##_new(void); \
 	N *N##_new_cap(int cap); \
@@ -43,6 +43,8 @@
 		if (!map) return NULL; \
 		map->len = 0; \
 		map->cap = cap; \
+		map->max_load = HMAP_MAX_LOAD; \
+		map->min_load = HMAP_MIN_LOAD; \
 		map->buckets = malloc(cap * sizeof(struct N##_bucket)); \
 		if (!map->buckets) { \
 			free(map); \
@@ -153,7 +155,7 @@
 		_hmap_bucket->entries[_hmap_bucket->len].hash = _hmap_hash; \
 		++_hmap_bucket->len; \
 		++_hmap_map->len; \
-		if (HMAP_MAX_LOAD >= 0 && _hmap_map->len*1.0/_hmap_map->cap > HMAP_MAX_LOAD) { \
+		if (_hmap_map->max_load >= 0 && _hmap_map->len*1.0/_hmap_map->cap > _hmap_map->max_load) { \
 			N##_resize(_hmap_map, 2*_hmap_map->cap); \
 		} \
 		return 1; \
@@ -170,7 +172,7 @@
 				for (; _hmap_i+1<_hmap_bucket->len; ++_hmap_i) _hmap_bucket->entries[_hmap_i] = _hmap_bucket->entries[_hmap_i+1]; \
 				--_hmap_bucket->len; \
 				--_hmap_map->len; \
-				if (HMAP_MIN_LOAD >= 0 && _hmap_map->len*1.0/_hmap_map->cap < HMAP_MIN_LOAD && _hmap_map->cap > HMAP_MIN_CAP) { \
+				if (_hmap_map->min_load >= 0 && _hmap_map->len*1.0/_hmap_map->cap < _hmap_map->min_load && _hmap_map->cap > HMAP_MIN_CAP) { \
 					N##_resize(_hmap_map, _hmap_map->cap/2>HMAP_MIN_CAP ? _hmap_map->cap/2 : HMAP_MIN_CAP); \
 				} \
 				return 1; \
