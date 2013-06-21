@@ -106,7 +106,7 @@ Types defined:
     - `int entry` - the index of the entry in the current bucket
 
 Functions defined:
-- `NAME *NAME_new(void)` - calls `NAME_new_cap(256)`
+- `NAME *NAME_new(void)` - calls `NAME_new_cap(16)`
 - `NAME *NAME_new_cap(int cap)` - allocates a new hmap with `cap` buckets.
 - `void NAME_free(NAME *map)` - frees the map
 - `int NAME_resize(NAME *map, int cap)` - resizes the map to `cap`; returns 1 on success and 0 on malloc failure
@@ -120,7 +120,7 @@ Functions defined:
 - `KEY_TYPE NAME_key_at(const NAME *map, NAME_iterator iter)` - returns the key at the current position of the iterator
 - `VALUE_TYPE NAME_value_at(const NAME *map, NAME_iterator iter)` - returns the value at the current position of the iterator
 
-The hashmap is automatically resized to twice its current capacity once its load reaches 0.8.
+The hashmap is automatically resized to twice its current capacity once its load reaches 0.8 and to half its size when the load falls under 0.2.
 
 See [map-example.c](map-example.c) for map examples and more documentation.
 
