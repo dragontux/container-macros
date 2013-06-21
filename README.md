@@ -109,6 +109,7 @@ Functions defined:
 - `NAME *NAME_new(void)` - calls `NAME_new_cap(256)`
 - `NAME *NAME_new_cap(int cap)` - allocates a new hmap with `cap` buckets.
 - `void NAME_free(NAME *map)` - frees the map
+- `int NAME_resize(NAME *map, int cap)` - resizes the map to `cap`; returns 1 on success and 0 on malloc failure
 - `KEY_TYPE NAME_get(const NAME *map, KEY_TYPE key)` - retrieves the item with key `key`; return value is the zeroed `VALUE_TYPE` when no such key exists in the map
 - `int NAME_contains(const NAME *map, KEY_TYPE key)` - returns `1` if `key` exists in the map, `0` otherwise
 - `int NAME_get_contains(const NAME *map, KEY_TYPE key, VALUE_TYPE *value)` - sets `*value` to the value associated with `key` and returns `1` if `key` exists in the map, otherwise sets `*value` to a zeroed `VALUE_TYPE` and returns 0
@@ -118,6 +119,8 @@ Functions defined:
 - `int NAME_next(const NAME *map, NAME_iterator *iter)` - moves `iter` to the next position, returns `0` if there are no more entries
 - `KEY_TYPE NAME_key_at(const NAME *map, NAME_iterator iter)` - returns the key at the current position of the iterator
 - `VALUE_TYPE NAME_value_at(const NAME *map, NAME_iterator iter)` - returns the value at the current position of the iterator
+
+The hashmap is automatically resized to twice its current capacity once its load reaches 0.8.
 
 See [map-example.c](map-example.c) for map examples and more documentation.
 

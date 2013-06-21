@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define HMAP_BUCKET_SIZE 1 /* starting bucket size */
+#define HMAP_MAX_LOAD 0.8 /* load before resizing; 0 to disable resizing */
+
 #define HMAP_PROTO(K, V, N) \
 	typedef struct N##_entry { uint32_t hash; K key; V value; } N##_entry; \
 	typedef struct N##_bucket { int len; int cap; struct N##_entry *entries; } N##_bucket; \
@@ -15,6 +18,7 @@
 	N *N##_new(void); \
 	N *N##_new_cap(int cap); \
 	void N##_free(N *map); \
+	int N##_resize(N *map, int cap); \
 	V N##_get(const N *map, K key); \
 	int N##_contains(const N *map, K key); \
 	int N##_get_contains(const N *map, K key, V *value); \
@@ -53,6 +57,40 @@
 		} \
 		free(map->buckets); \
 		free(map); \
+	} \
+	int N##_resize(N *map, int cap) \
+	{ \
+		N##_bucket *buckets, *oldb, *newb; \
+		N##_entry *entries; \
+		int i, j, k, newcap; \
+		buckets = malloc(cap * sizeof(struct N##_bucket)); \
+		if (!buckets) return 0; \
+		memset(buckets, 0, cap*sizeof(struct N##_bucket)); \
+		for (i=0; i<map->cap; ++i) { \
+			oldb = &map->buckets[i]; \
+			for (j=0; j<oldb->len; ++j) { \
+				newb = &buckets[oldb->entries[j].hash%cap]; \
+				if (newb->cap == newb->len) { \
+					newcap = newb->cap>0 ? 2*newb->cap : HMAP_BUCKET_SIZE; \
+					entries = realloc(newb->entries, newcap*sizeof(struct N##_entry)); \
+					if (!entries) { \
+						for (k=0; cap; ++k) if (buckets[k].cap > 0) free(buckets[k].entries); \
+						free(buckets); \
+						return 0; \
+					} \
+					newb->entries = entries; \
+					newb->cap = newcap; \
+				} \
+				newb->entries[newb->len++] = oldb->entries[j]; \
+			} \
+		} \
+		for (i=0; i<map->cap; ++i) { \
+			if (map->buckets[i].cap > 0) free(map->buckets[i].entries); \
+		} \
+		free(map->buckets); \
+		map->cap = cap; \
+		map->buckets = buckets; \
+		return 1; \
 	} \
 	V N##_get(const N *map, K key) \
 	{ \
@@ -98,9 +136,9 @@
 		} \
 		if (bucket->len == bucket->cap) { \
 			if (!bucket->cap) { \
-				bucket->entries = malloc(sizeof(struct N##_entry)); \
+				bucket->entries = malloc(HMAP_BUCKET_SIZE * sizeof(struct N##_entry)); \
 				if (!bucket->entries) return 0; \
-				bucket->cap = 1; \
+				bucket->cap = HMAP_BUCKET_SIZE; \
 			} else { \
 				tmp = realloc(bucket->entries, 2*bucket->cap*sizeof(struct N##_entry)); \
 				if (!tmp) return 0; \
@@ -113,6 +151,9 @@
 		bucket->entries[bucket->len].hash = hash; \
 		++bucket->len; \
 		++map->len; \
+		if (map->len*1.0/map->cap > HMAP_MAX_LOAD) { \
+			N##_resize(map, 2*map->cap); \
+		} \
 		return 1; \
 	} \
 	int N##_delete(N *map, K key) \
