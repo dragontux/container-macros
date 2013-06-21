@@ -12,9 +12,6 @@
  * functions is derived by appending a _name to the supplied name, such as
  * int_list_new (int_list ## _new). A list can contain pointers as well as
  * normal values (primitives, structs, etc).
- *
- * See the comments in alist.h and llist.h for more documentation specific to
- * these list implementations.
  */
 
 /* create prototypes for a list of integers, this should be put in a header*/
