@@ -36,8 +36,10 @@
 
 #include <stdio.h>
 #include "hmap.h"
+#include "alist.h"
 
-#define T uint32_t
+#define T uint32_t /* key and value type */
+#define N 5 /* number of growths */
 
 typedef struct stats {
 	int len;
@@ -56,6 +58,8 @@ uint32_t hash(T n);
 
 HMAP_PROTO(int, int, map);
 HMAP(int, int, map, cmp, hash);
+ALIST_PROTO(stats, stat_list);
+ALIST(stats, stat_list);
 
 int cmp(T a, T b)
 {
@@ -115,6 +119,10 @@ stats map_stats(const map *m)
 void print_header(void)
 {
 	printf("%-5s | %-5s | %-5s | %-5s | %-5s | %-5s | %-5s | %-5s | %-5s\n", "max", "len", "cap", "load", "coll", "ncoll", "eff", "bytes", "value");
+}
+
+void print_hr(void)
+{
 	printf("------+-------+-------+-------+-------+-------+-------+-------+------\n");
 }
 
@@ -133,10 +141,13 @@ int main(void)
 	map *m;
 	int lastcap;
 	stats s;
+	stat_list *l1, *l2;
+	stat_list_iterator iter;
 	double _max_load[] = {0.2, 0.3, 0.5, 0.7, 0.85, 1.0, 1.15, 1.3, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 6.0, 9.0, 12.0, 15.0, 20.0, 0.0};
 	double *max_load = _max_load;
 
-	print_header();
+	l1 = stat_list_new();
+	l2 = stat_list_new();
 	while (*max_load > 0) {
 		m = map_new();
 		m->max_load = *max_load;
@@ -144,16 +155,34 @@ int main(void)
 		lastcap = m->cap;
 		s = map_stats(m);
 		srand(0);
-		for (i=0; i<=5; ++i) {
+		for (i=0; i<=N; ++i) {
 			while (m->cap == lastcap) {
-				s = map_stats(m);
+				if ((m->len+1.0)/m->cap > m->max_load) {
+					s = map_stats(m);
+				}
 				map_set(m, randt(), randt());
 			}
 			lastcap = m->cap;
 		}
-		print_stats(s);
+		stat_list_insert(l1, s, -1);
+		stat_list_insert(l2, map_stats(m), -1);
 		map_free(m);
 	}
+
+	print_header();
+	print_hr();
+	for (iter=stat_list_iterate(l1); stat_list_next(l1, &iter); ) {
+		print_stats(stat_list_get_at(l1, iter));
+	}
+	print_hr();
+	print_header();
+	print_hr();
+	for (iter=stat_list_iterate(l2); stat_list_next(l2, &iter); ) {
+		print_stats(stat_list_get_at(l2, iter));
+	}
+
+	stat_list_free(l1);
+	stat_list_free(l2);
 
 	return 0;
 }
