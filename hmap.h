@@ -165,6 +165,7 @@
 		N##_bucket *_hmap_bucket; \
 		int _hmap_i; \
 		uint32_t _hmap_hash; \
+		N##_entry *_hmap_tmp; \
 		_hmap_hash = H(_hmap_key); \
 		_hmap_bucket = &_hmap_map->buckets[_hmap_hash%_hmap_map->cap]; \
 		for (_hmap_i=0; _hmap_i<_hmap_bucket->len; ++_hmap_i) { \
@@ -174,6 +175,12 @@
 				--_hmap_map->len; \
 				if (_hmap_map->min_load >= 0 && _hmap_map->len*1.0/_hmap_map->cap < _hmap_map->min_load && _hmap_map->cap > HMAP_MIN_CAP) { \
 					N##_resize(_hmap_map, _hmap_map->cap/2>HMAP_MIN_CAP ? _hmap_map->cap/2 : HMAP_MIN_CAP); \
+				} else if (_hmap_bucket->len < _hmap_bucket->cap/2) { \
+					_hmap_tmp = realloc(_hmap_bucket->entries, _hmap_bucket->cap/2*sizeof(struct N##_entry)); \
+					if (_hmap_tmp) { \
+						_hmap_bucket->entries = _hmap_tmp; \
+						_hmap_bucket->cap /= 2; \
+					} \
 				} \
 				return 1; \
 			} \
