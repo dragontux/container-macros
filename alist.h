@@ -25,43 +25,44 @@
 
 /* defines functions for an arraylist with elements of type T named N */
 #define ALIST(T, N) \
+	const int N##_sizeof_element = sizeof(T); \
 	N *N##_new(void) \
 	{ \
 		return N##_new_cap(8); \
 	} \
-	N *N##_new_cap(int _alist_size) \
+	N *N##_new_cap(int size) \
 	{ \
-		N *_alist_s; \
-		_alist_s = malloc(sizeof(struct N)); \
-		if (!_alist_s) return NULL; \
-		_alist_s->cap = _alist_size; \
-		_alist_s->len = 0; \
-		_alist_s->arr = malloc(_alist_size * sizeof(T)); \
-		if (!_alist_s->arr) { free(_alist_s); return NULL; } \
-		return _alist_s; \
+		N *s; \
+		s = malloc(sizeof(struct N)); \
+		if (!s) return NULL; \
+		s->cap = size; \
+		s->len = 0; \
+		s->arr = malloc(size * N##_sizeof_element); \
+		if (!s->arr) { free(s); return NULL; } \
+		return s; \
 	} \
 	void N##_free(N *s) \
 	{ \
 		free(s->arr); \
 		free(s); \
 	} \
-	int N##_insert(N *_alist_s, T _alist_item, int _alist_pos) \
+	int N##_insert(N *s, T item, int pos) \
 	{ \
-		T *_alist_temp; \
-		int _alist_i; \
-		if (_alist_s->len >= _alist_s->cap) { \
-			_alist_temp = realloc(_alist_s->arr, _alist_s->cap*2*sizeof(T)); \
-			if (!_alist_temp) return 0; \
-			_alist_s->arr = _alist_temp; \
-			_alist_s->cap *= 2; \
+		T *temp; \
+		int i; \
+		if (s->len >= s->cap) { \
+			temp = realloc(s->arr, s->cap*2*N##_sizeof_element); \
+			if (!temp) return 0; \
+			s->arr = temp; \
+			s->cap *= 2; \
 		} \
-		if (_alist_pos >= 0 && _alist_pos != _alist_s->len) { \
-			for (_alist_i=_alist_s->len; _alist_i>_alist_pos; --_alist_i) { \
-				_alist_s->arr[_alist_i] = _alist_s->arr[_alist_i-1]; \
+		if (pos >= 0 && pos != s->len) { \
+			for (i=s->len; i>pos; --i) { \
+				s->arr[i] = s->arr[i-1]; \
 			} \
 		} \
-		_alist_s->arr[_alist_pos<0?_alist_s->len:_alist_pos] = _alist_item; \
-		_alist_s->len++; \
+		s->arr[pos<0?s->len:pos] = item; \
+		s->len++; \
 		return 1; \
 	} \
 	T N##_pop(N *s, int pos) \
@@ -84,14 +85,14 @@
 	{ \
 		s->arr[pos<0||pos>=s->len?s->len-1:pos] = item; \
 	} \
-	int N##_resize(N *_alist_s, int _alist_size) \
+	int N##_resize(N *s, int size) \
 	{ \
-		T *_alist_temp; \
-		_alist_temp = realloc(_alist_s->arr, _alist_size*sizeof(T)); \
-		if (!_alist_temp) return 0; \
-		_alist_s->arr = _alist_temp; \
-		if (_alist_size < _alist_s->len) _alist_s->len = _alist_size; \
-		_alist_s->cap = _alist_size; \
+		T *temp; \
+		temp = realloc(s->arr, size*N##_sizeof_element); \
+		if (!temp) return 0; \
+		s->arr = temp; \
+		if (size < s->len) s->len = size; \
+		s->cap = size; \
 		return 1; \
 	} \
 	N##_iterator N##_iterate(const N *s) \
