@@ -32,6 +32,14 @@
 	V N##_value_at(const N *map, const N##_iterator iter)
 
 #define HMAP(K, V, N, C, H) \
+	uint32_t N##_hash(K _hmap_key) \
+	{ \
+		return H(_hmap_key); \
+	} \
+	int N##_compare(K _hmap_a, K _hmap_b) { \
+		return C(_hmap_a, _hmap_b); \
+	} \
+	const int N##_sizeof_value = sizeof(V); \
 	N *N##_new(void) \
 	{ \
 		return N##_new_cap(HMAP_MIN_CAP); \
@@ -107,79 +115,78 @@
 		V value; \
 		return N##_get_contains(map, key, &value); \
 	} \
-	/* variable names prefixed with _hmap_ because of sizeof(V) */ \
-	int N##_get_contains(const N *_hmap_map, K _hmap_key, V *_hmap_value) \
+	int N##_get_contains(const N *map, K key, V *value) \
 	{ \
-		N##_bucket *_hmap_bucket; \
-		int _hmap_i; \
-		uint32_t _hmap_hash;\
-		_hmap_hash = H(_hmap_key); \
-		_hmap_bucket = &_hmap_map->buckets[_hmap_hash%_hmap_map->cap]; \
-		for (_hmap_i=0; _hmap_i<_hmap_bucket->len; ++_hmap_i) { \
-			if (_hmap_bucket->entries[_hmap_i].hash==_hmap_hash && !C(_hmap_bucket->entries[_hmap_i].key, _hmap_key)) { \
-				*_hmap_value = _hmap_bucket->entries[_hmap_i].value; \
+		N##_bucket *bucket; \
+		int i; \
+		uint32_t hash;\
+		hash = N##_hash(key); \
+		bucket = &map->buckets[hash%map->cap]; \
+		for (i=0; i<bucket->len; ++i) { \
+			if (bucket->entries[i].hash==hash && !N##_compare(bucket->entries[i].key, key)) { \
+				*value = bucket->entries[i].value; \
 				return 1; \
 			} \
 		} \
-		memset(_hmap_value, 0, sizeof(V)); \
+		memset(value, 0, N##_sizeof_value); \
 		return 0; \
 	} \
-	int N##_set(N *_hmap_map, K _hmap_key, V _hmap_value) \
+	int N##_set(N *map, K key, V value) \
 	{ \
-		N##_bucket *_hmap_bucket; \
-		N##_entry *_hmap_tmp; \
-		int _hmap_i; \
-		uint32_t _hmap_hash; \
-		_hmap_hash = H(_hmap_key); \
-		_hmap_bucket = &_hmap_map->buckets[_hmap_hash%_hmap_map->cap]; \
-		for (_hmap_i=0; _hmap_i<_hmap_bucket->len; ++_hmap_i) { \
-			if (_hmap_bucket->entries[_hmap_i].hash==_hmap_hash && !C(_hmap_bucket->entries[_hmap_i].key, _hmap_key)) { \
-				_hmap_bucket->entries[_hmap_i].value = _hmap_value; \
+		N##_bucket *bucket; \
+		N##_entry *tmp; \
+		int i; \
+		uint32_t hash; \
+		hash = N##_hash(key); \
+		bucket = &map->buckets[hash%map->cap]; \
+		for (i=0; i<bucket->len; ++i) { \
+			if (bucket->entries[i].hash==hash && !N##_compare(bucket->entries[i].key, key)) { \
+				bucket->entries[i].value = value; \
 				return 1; \
 			} \
 		} \
-		if (_hmap_bucket->len == _hmap_bucket->cap) { \
-			if (!_hmap_bucket->cap) { \
-				_hmap_bucket->entries = malloc(HMAP_BUCKET_SIZE * sizeof(struct N##_entry)); \
-				if (!_hmap_bucket->entries) return 0; \
-				_hmap_bucket->cap = HMAP_BUCKET_SIZE; \
+		if (bucket->len == bucket->cap) { \
+			if (!bucket->cap) { \
+				bucket->entries = malloc(HMAP_BUCKET_SIZE * sizeof(struct N##_entry)); \
+				if (!bucket->entries) return 0; \
+				bucket->cap = HMAP_BUCKET_SIZE; \
 			} else { \
-				_hmap_tmp = realloc(_hmap_bucket->entries, 2*_hmap_bucket->cap*sizeof(struct N##_entry)); \
-				if (!_hmap_tmp) return 0; \
-				_hmap_bucket->entries = _hmap_tmp; \
-				_hmap_bucket->cap *= 2; \
+				tmp = realloc(bucket->entries, 2*bucket->cap*sizeof(struct N##_entry)); \
+				if (!tmp) return 0; \
+				bucket->entries = tmp; \
+				bucket->cap *= 2; \
 			} \
 		} \
-		_hmap_bucket->entries[_hmap_bucket->len].key = _hmap_key; \
-		_hmap_bucket->entries[_hmap_bucket->len].value = _hmap_value; \
-		_hmap_bucket->entries[_hmap_bucket->len].hash = _hmap_hash; \
-		++_hmap_bucket->len; \
-		++_hmap_map->len; \
-		if (_hmap_map->max_load >= 0 && _hmap_map->len*1.0/_hmap_map->cap > _hmap_map->max_load) { \
-			N##_resize(_hmap_map, 2*_hmap_map->cap); \
+		bucket->entries[bucket->len].key = key; \
+		bucket->entries[bucket->len].value = value; \
+		bucket->entries[bucket->len].hash = hash; \
+		++bucket->len; \
+		++map->len; \
+		if (map->max_load >= 0 && map->len*1.0/map->cap > map->max_load) { \
+			N##_resize(map, 2*map->cap); \
 		} \
 		return 1; \
 	} \
-	int N##_delete(N *_hmap_map, K _hmap_key) \
+	int N##_delete(N *map, K key) \
 	{ \
-		N##_bucket *_hmap_bucket; \
-		int _hmap_i; \
-		uint32_t _hmap_hash; \
-		N##_entry *_hmap_tmp; \
-		_hmap_hash = H(_hmap_key); \
-		_hmap_bucket = &_hmap_map->buckets[_hmap_hash%_hmap_map->cap]; \
-		for (_hmap_i=0; _hmap_i<_hmap_bucket->len; ++_hmap_i) { \
-			if (_hmap_bucket->entries[_hmap_i].hash==_hmap_hash && !C(_hmap_bucket->entries[_hmap_i].key, _hmap_key)) { \
-				for (; _hmap_i+1<_hmap_bucket->len; ++_hmap_i) _hmap_bucket->entries[_hmap_i] = _hmap_bucket->entries[_hmap_i+1]; \
-				--_hmap_bucket->len; \
-				--_hmap_map->len; \
-				if (_hmap_map->min_load >= 0 && _hmap_map->len*1.0/_hmap_map->cap < _hmap_map->min_load && _hmap_map->cap > HMAP_MIN_CAP) { \
-					N##_resize(_hmap_map, _hmap_map->cap/2>HMAP_MIN_CAP ? _hmap_map->cap/2 : HMAP_MIN_CAP); \
-				} else if (_hmap_bucket->len < _hmap_bucket->cap/2) { \
-					_hmap_tmp = realloc(_hmap_bucket->entries, _hmap_bucket->cap/2*sizeof(struct N##_entry)); \
-					if (_hmap_tmp) { \
-						_hmap_bucket->entries = _hmap_tmp; \
-						_hmap_bucket->cap /= 2; \
+		N##_bucket *bucket; \
+		int i; \
+		uint32_t hash; \
+		N##_entry *tmp; \
+		hash = N##_hash(key); \
+		bucket = &map->buckets[hash%map->cap]; \
+		for (i=0; i<bucket->len; ++i) { \
+			if (bucket->entries[i].hash==hash && !N##_compare(bucket->entries[i].key, key)) { \
+				for (; i+1<bucket->len; ++i) bucket->entries[i] = bucket->entries[i+1]; \
+				--bucket->len; \
+				--map->len; \
+				if (map->min_load >= 0 && map->len*1.0/map->cap < map->min_load && map->cap > HMAP_MIN_CAP) { \
+					N##_resize(map, map->cap/2>HMAP_MIN_CAP ? map->cap/2 : HMAP_MIN_CAP); \
+				} else if (bucket->len < bucket->cap/2) { \
+					tmp = realloc(bucket->entries, bucket->cap/2*sizeof(struct N##_entry)); \
+					if (tmp) { \
+						bucket->entries = tmp; \
+						bucket->cap /= 2; \
 					} \
 				} \
 				return 1; \
