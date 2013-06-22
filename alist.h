@@ -29,39 +29,39 @@
 	{ \
 		return N##_new_cap(8); \
 	} \
-	N *N##_new_cap(int _llist_size) \
+	N *N##_new_cap(int _alist_size) \
 	{ \
-		N *_llist_s; \
-		_llist_s = malloc(sizeof(struct N)); \
-		if (!_llist_s) return NULL; \
-		_llist_s->cap = _llist_size; \
-		_llist_s->len = 0; \
-		_llist_s->arr = malloc(_llist_size * sizeof(T)); \
-		if (!_llist_s->arr) { free(_llist_s); return NULL; } \
-		return _llist_s; \
+		N *_alist_s; \
+		_alist_s = malloc(sizeof(struct N)); \
+		if (!_alist_s) return NULL; \
+		_alist_s->cap = _alist_size; \
+		_alist_s->len = 0; \
+		_alist_s->arr = malloc(_alist_size * sizeof(T)); \
+		if (!_alist_s->arr) { free(_alist_s); return NULL; } \
+		return _alist_s; \
 	} \
 	void N##_free(N *s) \
 	{ \
 		free(s->arr); \
 		free(s); \
 	} \
-	int N##_insert(N *_llist_s, T _llist_item, int _llist_pos) \
+	int N##_insert(N *_alist_s, T _alist_item, int _alist_pos) \
 	{ \
-		T *_llist_temp; \
-		int _llist_i; \
-		if (_llist_s->len >= _llist_s->cap) { \
-			_llist_temp = realloc(_llist_s->arr, _llist_s->cap*2*sizeof(T)); \
-			if (!_llist_temp) return 0; \
-			_llist_s->arr = _llist_temp; \
-			_llist_s->cap *= 2; \
+		T *_alist_temp; \
+		int _alist_i; \
+		if (_alist_s->len >= _alist_s->cap) { \
+			_alist_temp = realloc(_alist_s->arr, _alist_s->cap*2*sizeof(T)); \
+			if (!_alist_temp) return 0; \
+			_alist_s->arr = _alist_temp; \
+			_alist_s->cap *= 2; \
 		} \
-		if (_llist_pos >= 0 && _llist_pos != _llist_s->len) { \
-			for (i=_llist_s->len; _llist_i>pos; --_llist_i) { \
-				_llist_s->arr[_llist_i] = _llist_s->arr[_llist_i-1]; \
+		if (_alist_pos >= 0 && _alist_pos != _alist_s->len) { \
+			for (_alist_i=_alist_s->len; _alist_i>_alist_pos; --_alist_i) { \
+				_alist_s->arr[_alist_i] = _alist_s->arr[_alist_i-1]; \
 			} \
 		} \
-		_llist_s->arr[_llist_pos<0?_llist_s->len:_llist_pos] = _llist_item; \
-		_llist_s->len++; \
+		_alist_s->arr[_alist_pos<0?_alist_s->len:_alist_pos] = _alist_item; \
+		_alist_s->len++; \
 		return 1; \
 	} \
 	T N##_pop(N *s, int pos) \
@@ -84,14 +84,14 @@
 	{ \
 		s->arr[pos<0||pos>=s->len?s->len-1:pos] = item; \
 	} \
-	int N##_resize(N *_llist_s, int _llist_size) \
+	int N##_resize(N *_alist_s, int _alist_size) \
 	{ \
-		T *_llist_temp; \
-		_llist_temp = realloc(_llist_s->arr, _llist_size*sizeof(T)); \
-		if (!_llist_temp) return 0; \
-		_llist_s->arr = _llist_temp; \
-		if (_llist_size < _llist_s->len) _llist_s->len = _llist_size; \
-		_llist_s->cap = _llist_size; \
+		T *_alist_temp; \
+		_alist_temp = realloc(_alist_s->arr, _alist_size*sizeof(T)); \
+		if (!_alist_temp) return 0; \
+		_alist_s->arr = _alist_temp; \
+		if (_alist_size < _alist_s->len) _alist_s->len = _alist_size; \
+		_alist_s->cap = _alist_size; \
 		return 1; \
 	} \
 	N##_iterator N##_iterate(const N *s) \
