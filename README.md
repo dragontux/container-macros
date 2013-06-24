@@ -21,8 +21,8 @@ Functions defined:
 - `int NAME_next(const NAME *list, NAME_iterator *iter)` - moves `iter` to the next position, returns `0` if there are no more elements
 - `TYPE NAME_get_at(const NAME *list, NAME_iterator iter)` - returns the value at the current position of `iter`
 - `void NAME_set_at(NAME *list, TYPE value, NAME_iterator iter)` - sets the item at the current position of `iter` to `value`
-- `int NAME_insert_after(NAME *list, TYPE value, NAME_iterator iter)` - inserts `value` to `list` right after the position `iter` points to
-- `TYPE NAME_pop_after(NAME *list, NAME_iterator iter)` - removes the item at one position after `iter` from `list` and returns it; undefined when `iter` points to the last item in the list
+- `int NAME_insert_at(NAME *list, TYPE value, NAME_iterator iter)` - inserts `value` to `list` at the position of `iter` (cannot be used to append to the tail of the list)
+- `TYPE NAME_pop_at(NAME *list, NAME_iterator iter)` - removes the item at the position of the iterator
 
 All `int pos` parameters have a special value `-1`, which is equivalent to `list->len` in insert and `list->len-1` in pop/get/set and insert/pop/get/set on that position are O(1) in both linked and array lists.
 
@@ -49,7 +49,7 @@ Additional functions defined:
 - `NAME *NAME_new_cap(int cap)` - allocates a new alist with initial capacity `cap` (`NAME_new` uses `8`); `NAME_insert` will double the capacity each time it needs more space
 - `int NAME_resize(NAME *list, int size)` - reallocs the list's capacity to `size`, truncates elements if `size < list->len`
 
-The `_at` and `_after` functions are no faster than the versions used with an index; get and set are O(1), insert and pop are O(n) except on the tail, where they are O(1).
+The `_at` functions are no faster than the versions used with an index; get and set are O(1), insert and pop are O(n) except on the tail, where they are O(1).
 
 To manually iterate an alist, do `int i; for (i=0; i<list->len; ++i) { do_something(list->arr[i]); }`
 
@@ -69,12 +69,14 @@ Types defined:
 - `NAME_pair` - a list element; fields:
     - `TYPE car` - the value
     - `NAME_pair *cdr` - the next element in the list
-- `NAME_iterator` - typedef of `NAME_pair *` used to traverse the list; popping the item at the current position of the iterator invalidates it
+- `NAME_iterator` - a struct used to traverse the list; inserting between the previous and current position of the iterator or popping the element iterator points to or the one before it invalidates it (technically, only `_insert_at` and `_pop_at` functions should not be used after the insert or pop of the previous element; `_get_at`, `_set_at` and `_next` are still usable); fields:
+    - `NAME_pair *prev` - the previous element in the list, used in `_insert_at` and `_pop_at`
+    - `NAME_pair *curr` - the element the iterator points to
 
 Additional functions defined:
 - `NAME_pair *NAME_pair_new(TYPE value)` - allocates a new list element with the value `value`
 
-List inserts, pops, gets and sets on head and tail are O(1), O(n) elsewhere. `_at` and `_after` functions are all O(1).
+List inserts, pops, gets and sets on head and tail are O(1), O(n) elsewhere. `_at` functions are all O(1).
 
 To manually iterate a llist, do `NAME_pair *p; for (p=list->first; p; p=p->cdr) { do_something(p->car); }`
 

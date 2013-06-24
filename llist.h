@@ -8,7 +8,7 @@
 #define LLIST_PROTO(T, N) \
 	typedef struct N##_pair { T car; struct N##_pair *cdr; } N##_pair; \
 	typedef struct N { int len; struct N##_pair *first; struct N##_pair *last; } N; \
-	typedef struct N##_pair *N##_iterator; \
+	typedef struct N##_iterator { N##_pair *prev; N##_pair *curr; } N##_iterator; \
 	N *N##_new(void); \
 	void N##_free(N *s); \
 	N##_pair *N##_pair_new(T item); \
@@ -20,8 +20,8 @@
 	int N##_next(const N *s, N##_iterator *iter); \
 	T N##_get_at(const N *s, N##_iterator iter); \
 	void N##_set_at(N *s, T item, N##_iterator iter); \
-	int N##_insert_after(N *s, T item, N##_iterator iter); \
-	T N##_pop_after(N *s, N##_iterator iter)
+	int N##_insert_at(N *s, T item, N##_iterator iter); \
+	T N##_pop_at(N *s, N##_iterator iter)
 
 #define LLIST(T, N) \
 	N *N##_new(void) \
@@ -146,64 +146,56 @@
 	} \
 	N##_iterator N##_iterate(const N *s) \
 	{ \
-		return NULL; \
+		N##_iterator iter = {NULL, NULL}; \
+		return iter; \
 	} \
 	int N##_next(const N *s, N##_iterator *iter) \
 	{ \
-		if (!*iter) { \
-			*iter = s->first; \
+		if (!iter->curr) { \
+			iter->curr = s->first; \
 			return 1; \
 		} \
-		if (!(*iter)->cdr) { \
+		if (!iter->curr->cdr) { \
 			return 0; \
 		} \
-		*iter = (*iter)->cdr; \
+		iter->prev = iter->curr; \
+		iter->curr = iter->curr->cdr; \
 		return 1; \
 	} \
 	T N##_get_at(const N *s, N##_iterator iter) \
 	{ \
-		return iter->car; \
+		return iter.curr->car; \
 	} \
 	void N##_set_at(N *s, T item, N##_iterator iter) \
 	{ \
-		iter->car = item; \
+		iter.curr->car = item; \
 	} \
-	int N##_insert_after(N *s, T item, N##_iterator iter) \
+	int N##_insert_at(N *s, T item, N##_iterator iter) \
 	{ \
 		N##_pair *newp; \
 		newp = N##_pair_new(item); \
 		if (!newp) return 0; \
 		++s->len; \
-		if (!iter) { \
-			newp->cdr = s->first; \
-			if (!s->last) s->last = iter; \
-			s->first = iter; \
-			return 1; \
-		} \
-		newp->cdr = iter->cdr; \
-		iter->cdr = newp; \
-		if (iter == s->last) { \
-			s->last = newp; \
+		newp->cdr = iter.curr; \
+		if (!iter.prev) { \
+			s->first = newp; \
+		} else { \
+			iter.prev->cdr = newp; \
 		} \
 		return 1; \
 	} \
-	T N##_pop_after(N *s, N##_iterator iter) \
+	T N##_pop_at(N *s, N##_iterator iter) \
 	{ \
 		T val; \
-		N##_pair *temp; \
 		--s->len; \
-		if (!iter) { \
-			temp = s->first; \
-			val = temp->car; \
-			s->first = temp->cdr; \
-			if (!s->first) s->last = NULL; \
+		if (!iter.prev) { \
+			s->first = iter.curr->cdr; \
 		} else { \
-			temp = iter->cdr; \
-			val = temp->car; \
-			iter->cdr = temp->cdr; \
-			if (temp == s->last) s->last = iter; \
+			iter.prev->cdr = iter.curr->cdr; \
 		} \
-		free(temp); \
+		if (s->last == iter.curr) s->last = iter.prev; \
+		val = iter.curr->car; \
+		free(iter.curr); \
 		return val; \
 	} \
 	struct N /* to avoid extra semicolon outside of a function */

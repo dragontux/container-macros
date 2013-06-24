@@ -20,8 +20,8 @@
 	int N##_next(const N *s, N##_iterator *iter); \
 	T N##_get_at(const N *s, N##_iterator iter); \
 	void N##_set_at(N *s, T item, N##_iterator iter); \
-	int N##_insert_after(N *s, T item, N##_iterator iter); \
-	T N##_pop_after(N *s, N##_iterator iter)
+	int N##_insert_at(N *s, T item, N##_iterator iter); \
+	T N##_pop_at(N *s, N##_iterator iter)
 
 /* defines functions for an arraylist with elements of type T named N */
 #define ALIST(T, N) \
@@ -119,13 +119,13 @@
 	{ \
 		s->arr[iter] = item; \
 	} \
-	int N##_insert_after(N *s, T item, N##_iterator iter) \
+	int N##_insert_at(N *s, T item, N##_iterator iter) \
 	{ \
-		return N##_insert(s, item, iter+1); \
+		return N##_insert(s, item, iter); \
 	} \
-	T N##_pop_after(N *s, N##_iterator iter) \
+	T N##_pop_at(N *s, N##_iterator iter) \
 	{ \
-		return N##_pop(s, iter+1); \
+		return N##_pop(s, iter); \
 	} \
 	struct N /* to avoid extra semicolon outside of a function */
 
