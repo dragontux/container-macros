@@ -115,11 +115,20 @@ int main(void)
 
 	/*
 	 * `int map_get_contains(const map *m, char *key, int *value)` returns 1 if
-	 * `key` is in `m`, 0 otherwise. If the key exists, `*value` is set to the value of
-	 * that entry. If it doesn't, then the space `value` points to is zeroed.
+	 * `key` is in `m`, 0 otherwise. If the key exists, `*value` is set to the
+	 * value of that entry. If it doesn't, then the space `value` points to is
+	 * not touched.
 	 */
+	value = -1;
 	contains = map_get_contains(m, "foo", &value);
 	printf("foo in map: %s, value: %d\n", contains?"yes":"no", value); /* foo in map: yes, value: 1 */
+
+	/*
+	 * `int map_get_default(const map *m, char *key, int value)` returns the value
+	 * associated with the key `key` if such an entry exists in the map, otherwise
+	 * it returns the value of the `value` parameter.
+	 */
+	printf("asd (default: -1): %d\n", map_get_default(m, "asd", -1)); /* asd (default: -1): -1 */
 
 	/*
 	 * `int map_delete(map *m, char *key)` removes the entry with key `key` from

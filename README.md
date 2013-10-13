@@ -117,7 +117,8 @@ Functions defined:
 - `int NAME_resize(NAME *map, int cap)` - resizes the map to `cap`; returns `1` on success and `0` on malloc failure
 - `KEY_TYPE NAME_get(const NAME *map, KEY_TYPE key)` - retrieves the item with key `key`; return value is the zeroed `VALUE_TYPE` when no such key exists in the map
 - `int NAME_contains(const NAME *map, KEY_TYPE key)` - returns `1` if `key` exists in the map, `0` otherwise
-- `int NAME_get_contains(const NAME *map, KEY_TYPE key, VALUE_TYPE *value)` - sets `*value` to the value associated with `key` and returns `1` if `key` exists in the map, otherwise sets `*value` to a zeroed `VALUE_TYPE` and returns `0`
+- `KEY_TYPE NAME_get_default(const NAME *map, KEY_TYPE key, VALUE_TYPE def)` - retrieves the entry with key `key`; returns the value of that entry if it exists and `def` if it doesn't
+- `int NAME_get_contains(const NAME *map, KEY_TYPE key, VALUE_TYPE *value)` - sets `*value` to the value associated with `key` (if `value != NULL`) and returns `1` if `key` exists in the map, otherwise it doesn't touch the value `value` points to and returns `0`
 - `int NAME_set(NAME *map, KEY_TYPE key, VALUE_TYPE value)` - sets the map entry with key `key` to `value` overwriting an existing entry with such key if it exists; returns `0` on malloc failure, `1` otherwise
 - `int NAME_delete(NAME *map, KEY_TYPE key)` - removes the value associated with `key` from the map if it exists, otherwise does nothing; returns `1` if an entry was deleted, `0` otherwise
 - `NAME_iterator NAME_iterate(NAME *map)` - creates a new map iterator, `NAME_next` must be called before accessing the key or value at its position

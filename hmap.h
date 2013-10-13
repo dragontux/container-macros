@@ -115,13 +115,19 @@
 	V N##_get(const N *map, K key) \
 	{ \
 		V value; \
-		N##_get_contains(map, key, &value); \
+		if (!N##_get_contains(map, key, &value)) { \
+			memset(&value, 0, N##_sizeof_value); \
+		} \
 		return value; \
 	} \
 	int N##_contains(const N *map, K key) \
 	{ \
-		V value; \
-		return N##_get_contains(map, key, &value); \
+		return N##_get_contains(map, key, NULL); \
+	} \
+	int N##_get_default(const N *map, K key, V def) \
+	{ \
+		N##_get_contains(map, key, &def); \
+		return def; \
 	} \
 	int N##_get_contains(const N *map, K key, V *value) \
 	{ \
@@ -132,11 +138,12 @@
 		bucket = &map->buckets[hash%map->cap]; \
 		for (i=0; i<bucket->len; ++i) { \
 			if (bucket->entries[i].hash==hash && !N##_compare(bucket->entries[i].key, key)) { \
-				*value = bucket->entries[i].value; \
+				if (value) { \
+					*value = bucket->entries[i].value; \
+				} \
 				return 1; \
 			} \
 		} \
-		memset(value, 0, N##_sizeof_value); \
 		return 0; \
 	} \
 	int N##_set(N *map, K key, V value) \
