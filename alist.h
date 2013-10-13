@@ -56,10 +56,10 @@
 		T *temp; \
 		int i; \
 		if (s->len >= s->cap) { \
-			temp = realloc(s->arr, s->cap*2*N##_sizeof_element); \
+			temp = realloc(s->arr, s->cap*1.5*N##_sizeof_element); \
 			if (!temp) return 0; \
 			s->arr = temp; \
-			s->cap *= 2; \
+			s->cap *= 1.5; \
 		} \
 		if (pos >= 0 && pos != s->len) { \
 			for (i=s->len; i>pos; --i) { \
