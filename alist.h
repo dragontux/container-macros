@@ -11,6 +11,7 @@
 	N *N##_new(void); \
 	N *N##_new_cap(int size); \
 	void N##_free(N *s); \
+	int N##_size(const N *s); \
 	int N##_insert(N *s, T item, int pos); \
 	T N##_pop(N *s, int pos); \
 	T N##_get(const N *s, int pos); \

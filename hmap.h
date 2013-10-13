@@ -20,16 +20,18 @@
 	N *N##_new(void); \
 	N *N##_new_cap(int cap); \
 	void N##_free(N *map); \
+	int N##_size(const N *map); \
 	int N##_resize(N *map, int cap); \
 	V N##_get(const N *map, K key); \
 	int N##_contains(const N *map, K key); \
+	int N##_get_default(const N *map, K key, V def); \
 	int N##_get_contains(const N *map, K key, V *value); \
 	int N##_set(N *map, K key, V value); \
 	int N##_delete(N *map, K key); \
 	N##_iterator N##_iterate(const N *map); \
 	int N##_next(const N *map, N##_iterator *iter); \
-	K N##_key_at(const N *map, const N##_iterator iter); \
-	V N##_value_at(const N *map, const N##_iterator iter)
+	K N##_key_at(const N *map, N##_iterator iter); \
+	V N##_value_at(const N *map, N##_iterator iter)
 
 #define HMAP(K, V, N, C, H) \
 	struct N##_entry { uint32_t hash; K key; V value; }; \
@@ -232,11 +234,11 @@
 		} \
 		return 0; \
 	} \
-	K N##_key_at(const N *map, const N##_iterator iter) \
+	K N##_key_at(const N *map, N##_iterator iter) \
 	{ \
 		return map->buckets[iter.bucket].entries[iter.entry].key; \
 	} \
-	V N##_value_at(const N *map, const N##_iterator iter) \
+	V N##_value_at(const N *map, N##_iterator iter) \
 	{ \
 		return map->buckets[iter.bucket].entries[iter.entry].value; \
 	} \
