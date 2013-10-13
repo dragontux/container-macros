@@ -74,7 +74,7 @@
 		free(map->buckets); \
 		free(map); \
 	} \
-	int N##_size(N *map) \
+	int N##_size(const N *map) \
 	{ \
 		return map->len; \
 	} \

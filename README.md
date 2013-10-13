@@ -12,7 +12,7 @@ Types defined:
 Functions defined:
 - `NAME *NAME_new(void)` - allocate a new list
 - `void NAME_free(NAME *list)` - free the list
-- `int NAME_size(NAME *list)` - the number of list elements
+- `int NAME_size(const NAME *list)` - the number of list elements
 - `int NAME_insert(NAME *list, TYPE value, int pos)` - inserts an item to position `pos`, returns `0` on failure
 - `TYPE NAME_pop(NAME *list, int pos)` - removes the item at position `pos` from `list` and returns it
 - `TYPE NAME_get(const NAME *list, int pos)` - retrieves the item at position `pos`
@@ -113,7 +113,7 @@ Functions defined:
 - `NAME *NAME_new(void)` - calls `NAME_new_cap(16)`
 - `NAME *NAME_new_cap(int cap)` - allocates a new hmap with `cap` buckets.
 - `void NAME_free(NAME *map)` - frees the map
-- `int NAME_size(NAME *map)` - the number of entries currently in the map
+- `int NAME_size(const NAME *map)` - the number of entries currently in the map
 - `int NAME_resize(NAME *map, int cap)` - resizes the map to `cap`; returns `1` on success and `0` on malloc failure
 - `KEY_TYPE NAME_get(const NAME *map, KEY_TYPE key)` - retrieves the item with key `key`; return value is the zeroed `VALUE_TYPE` when no such key exists in the map
 - `int NAME_contains(const NAME *map, KEY_TYPE key)` - returns `1` if `key` exists in the map, `0` otherwise

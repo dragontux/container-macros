@@ -47,7 +47,7 @@
 		free(s->arr); \
 		free(s); \
 	} \
-	int N##_size(N *s) \
+	int N##_size(const N *s) \
 	{ \
 		return s->len; \
 	} \
