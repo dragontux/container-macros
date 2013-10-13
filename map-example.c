@@ -52,8 +52,8 @@ void print_map(map *m)
 	/* an iterator for iterating through all map entries */
 	map_iterator i;
 
-	/* the map has an integer field `len` that contains the number of entries */
-	printf("map (len: %d) {", m->len);
+	/* the method `int map_size(map *) returns the current number of entries */
+	printf("map (size: %d) {", map_size(m));
 
 	/* just like lists, map is iterated with _iterate and _next */
 	for (i=map_iterate(m); map_next(m, &i); ) {
@@ -93,7 +93,7 @@ int main(void)
 	map_set(m, "baz", 4);
 	map_set(m, "quux", 4);
 
-	/* map (len: 4) { quux:4, foo:1, bar:2, baz:4 }; note: undefined order */
+	/* map (size: 4) { quux:4, foo:1, bar:2, baz:4 }; note: undefined order */
 	print_map(m); 
 
 	map_set(m, "baz", 3);
@@ -129,7 +129,7 @@ int main(void)
 	map_delete(m, "quux");
 	map_delete(m, "asd");
 
-	print_map(m); /* map (len: 3) { foo:1, bar:2, baz:3 } */
+	print_map(m); /* map (size: 3) { foo:1, bar:2, baz:3 } */
 
 	/* `void map_free(map *m)` frees the map and its resources */
 	map_free(m);

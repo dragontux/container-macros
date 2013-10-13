@@ -6,9 +6,9 @@
 #include <stdlib.h>
 
 #define LLIST_PROTO(T, N) \
-	typedef struct N##_pair { T car; struct N##_pair *cdr; } N##_pair; \
-	typedef struct N { int len; struct N##_pair *first; struct N##_pair *last; } N; \
-	typedef struct N##_iterator { N##_pair *prev; N##_pair *curr; } N##_iterator; \
+	typedef struct N##_pair N##_pair; \
+	typedef struct N N; \
+	typedef struct N##_iterator N##_iterator; \
 	N *N##_new(void); \
 	void N##_free(N *s); \
 	N##_pair *N##_pair_new(T item); \
@@ -24,6 +24,9 @@
 	T N##_pop_at(N *s, N##_iterator iter)
 
 #define LLIST(T, N) \
+	struct N##_pair { T car; N##_pair *cdr; }; \
+	struct N { int len; N##_pair *first; N##_pair *last; }; \
+	struct N##_iterator { N##_pair *prev; N##_pair *curr; }; \
 	N *N##_new(void) \
 	{ \
 		N *s; \
@@ -53,6 +56,10 @@
 		p->car = item; \
 		p->cdr = NULL; \
 		return p; \
+	} \
+	int N##_size(N *s) \
+	{ \
+		return s->len; \
 	} \
 	int N##_insert(N *s, T item, int pos) \
 	{ \

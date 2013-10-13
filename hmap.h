@@ -13,10 +13,10 @@
 #define HMAP_MIN_LOAD 0.5 /* min load before shrinking to half; negative to disable; must be less than HMAP_MAX_LOAD/2 */
 
 #define HMAP_PROTO(K, V, N) \
-	typedef struct N##_entry { uint32_t hash; K key; V value; } N##_entry; \
-	typedef struct N##_bucket { int len; int cap; struct N##_entry *entries; } N##_bucket; \
-	typedef struct N { int len; int cap; struct N##_bucket *buckets; double max_load; double min_load; } N; \
-	typedef struct N##_iterator { int bucket; int entry; } N##_iterator; \
+	typedef struct N##_entry N##_entry; \
+	typedef struct N##_bucket N##_bucket; \
+	typedef struct N N; \
+	typedef struct N##_iterator N##_iterator; \
 	N *N##_new(void); \
 	N *N##_new_cap(int cap); \
 	void N##_free(N *map); \
@@ -32,6 +32,10 @@
 	V N##_value_at(const N *map, const N##_iterator iter)
 
 #define HMAP(K, V, N, C, H) \
+	struct N##_entry { uint32_t hash; K key; V value; }; \
+	struct N##_bucket { int len; int cap; struct N##_entry *entries; }; \
+	struct N { int len; int cap; struct N##_bucket *buckets; double max_load; double min_load; }; \
+	struct N##_iterator { int bucket; int entry; }; \
 	uint32_t N##_hash(K _hmap_key) \
 	{ \
 		return H(_hmap_key); \
@@ -69,6 +73,10 @@
 		} \
 		free(map->buckets); \
 		free(map); \
+	} \
+	int N##_size(N *map) \
+	{ \
+		return map->len; \
 	} \
 	int N##_resize(N *map, int cap) \
 	{ \

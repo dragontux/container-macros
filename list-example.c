@@ -52,14 +52,15 @@ void print_list(int_list *list)
 		printf("%d ", int_list_get_at(list, i));
 	}
 	/* 
-	 * int list->len is the length of the list.
+	 * int int_list_size(int_list *) is the length of the list.
 	 * 
 	 * In llist, this shouldn't be changed. In alist, this can be decremented to
 	 * remove elements from the tail of the list. alists also have list->cap,
 	 * which is the current capacity of the array, of which only the first
-	 * list->len elements are defined.
+	 * list->len elements are defined. These fields are not exported by the _PROTO
+	 * macros and have to be exported manually.
 	 */
-	printf("len: %d\n", list->len);
+	printf("len: %d\n", int_list_size(list));
 }
 
 int main(void)
@@ -76,8 +77,8 @@ int main(void)
 	 * The type of item parameter is the same as the type of list elements.
 	 *
 	 * A special position -1 means insert to the tail of the list (same as
-	 * inserting with position set list->len). That is an O(1) operation in both
-	 * llist and alist.
+	 * inserting with position set int_list_size(list)). That is an O(1) operation
+	 * in both llist and alist.
 	 *
 	 * Additionally, inserting to the head of the list (position == 0) is also
 	 * O(1) in linked lists. Otherwise, linked list insertions are O(n) in llist
@@ -107,13 +108,13 @@ int main(void)
 	 * type). The return value from this function can be ignored to just remove
 	 * an element.
 	 *
-	 * Position -1 again means position list->len.
+	 * Position -1 again means position int_list_size(list).
 	 *
 	 * In llist, this is an O(n) operation except for pos 0 or -1, since the
 	 * list needs to be iterated to pos. In alist, this is also O(n), since all
 	 * elements past position pos need to be shifted back (except on position -1
-	 * or list->len, where it's O(1), as it requires only list->len to be
-	 * decremented).
+	 * or int_list_size(list), where it's O(1), as it requires only list->len to
+	 * be decremented).
 	 */
 	printf("pop list[2]: %d\n", int_list_pop(list, 2)); /* 30 */
 	print_list(list); /* 10 20 40 50 */
@@ -123,7 +124,7 @@ int main(void)
 	 * at position pos to value (type of the value parameter is the type of list
 	 * elements).
 	 *
-	 * Position -1 is equivalent to position list->len.
+	 * Position -1 is equivalent to position int_list_size(list).
 	 *
 	 * In llist, this is a O(n) operation except for the first and last elements,
 	 * since the list needs to be iterated to that position first.

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #define ALIST_PROTO(T, N) \
-	typedef struct N { int cap; int len; T *arr; } N; \
+	typedef struct N N; \
 	typedef int N##_iterator; \
 	N *N##_new(void); \
 	N *N##_new_cap(int size); \
@@ -25,6 +25,7 @@
 
 /* defines functions for an arraylist with elements of type T named N */
 #define ALIST(T, N) \
+	struct N { int cap; int len; T *arr; }; \
 	const int N##_sizeof_element = sizeof(T); \
 	N *N##_new(void) \
 	{ \
@@ -45,6 +46,10 @@
 	{ \
 		free(s->arr); \
 		free(s); \
+	} \
+	int N##_size(N *s) \
+	{ \
+		return s->len; \
 	} \
 	int N##_insert(N *s, T item, int pos) \
 	{ \
