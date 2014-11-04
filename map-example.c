@@ -29,8 +29,8 @@ HMAP_PROTO(char *, int, map);
  * `uint32_t hash_function(char *)` in our case. It gets a key as a parameter
  * and must return a uint32_t hash of it. Optimally, keys should be evenly
  * distributed to avoid collisions. The hashmap will use the hash modulo the
- * number of its buckets, so if we use the default of 256 buckets, it will only
- * care about the least significant byte (equivalent to hash&256) as long as
+ * number of its buckets, so if we use a map with 256 buckets, it will only
+ * care about the least significant byte (equivalent to hash%256) as long as
  * it doesn't resize.
  */
 HMAP(char *, int, map, strcmp, djb2);
