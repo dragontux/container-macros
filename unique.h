@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef UNIQUE_H_INCLUDED
+#define UNIQUE_H_INCLUDED 1
+
 #include <stdbool.h>
-#include <assert.h>
 
 #define UNIQUE(T, N) \
 	/* The main data container for unique pointers */ \
@@ -79,3 +78,5 @@
 #define unique_ret_t(OUTTYPE) OUTTYPE##_unique_ret_t
 #define unique(OUTTYPE, NAME, DTOR ) _unique_(OUTTYPE) OUTTYPE##_unique_data_t NAME = \
                                     { .released = false, .data = NULL, .dtor = DTOR }; NAME.data
+
+#endif

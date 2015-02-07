@@ -1,7 +1,7 @@
 /* hmap.h: a CPP-based template implementation of a hashmap */
 
 #ifndef HMAP_H_INCLUDED
-#define HMAP_H_INCLUDED
+#define HMAP_H_INCLUDED 1
 
 #include <stdint.h>
 #include <stdlib.h>

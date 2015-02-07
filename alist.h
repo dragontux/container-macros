@@ -1,7 +1,7 @@
 /* alist.h: a CPP-based template implementation of array lists (resizable array) */
 
 #ifndef ALIST_H_INCLUDED
-#define ALIST_H_INCLUDED
+#define ALIST_H_INCLUDED 1
 
 #include <stdlib.h>
 
