@@ -52,7 +52,6 @@
 	/* Claims ownership of a previously released pointer */ \
 	static inline N##_unique_data_t N##_obtain( N##_unique_ret_t u ){\
 		struct N##_unique_data ret;\
-		assert( u.released == true );\
 		\
 		ret.released = false;\
 		ret.data = u.data;\
