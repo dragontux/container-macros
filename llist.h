@@ -1,7 +1,7 @@
 /* llist.h: a CPP-based template implementation of singly-linked list */
 
 #ifndef LLIST_H_INCLUDED
-#define LLIST_H_INCLUDED
+#define LLIST_H_INCLUDED 1
 
 #include <stdlib.h>
 
