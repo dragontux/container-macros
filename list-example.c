@@ -89,7 +89,7 @@ int main(void)
 	int_list_insert(list, 40, 1);  /* {20, 40} */
 	int_list_insert(list, 30, 1);  /* {20, 30, 40} */
 	int_list_insert(list, 50, -1); /* {20, 30, 40, 50} */
-	int_list_insert(list, 10, 0);  /* {10, 20, 30, 40, 50 */
+	int_list_insert(list, 10, 0);  /* {10, 20, 30, 40, 50} */
 	print_list(list);
 
 	/* int int_list_get(int_list *list, int pos) returns the item in list at

@@ -1,5 +1,5 @@
 # container-macros
-### Generic template implementations of common types using C preprocessor
+### Generic template implementations of common container types using C preprocessor
 
 ## lists
 Included are array list (vector) and linked list templates.
