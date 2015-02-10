@@ -7,40 +7,54 @@
 
 #define TREE_PROTO(T, N) \
 	typedef struct N N; \
-	typedef struct N##_node N##_node; \
-	typedef struct N##_iterator N##_iterator; \
-	N *N##_new(void); \
-	void N##_free(N *s); \
-	N##_node *N##_node_new(T item);
+	/* typedef struct N##_iterator N##_iterator; TODO, maybe */ \
+	void N##_free_all(N *s); \
+	N *N##_new(T item); \
+	N *N##_construct(T item, N *left, N *right); \
+	size_t N##_size(const N *tree);
 
 #define TREE(T, N) \
-	struct N { size_t items; N##_node *top; }; \
-	struct N##_node { T item; N##_node *left; N##_node *right; }; \
-	struct N##_iterator /* { TODO } */; \
-	N *N##_new(void) \
+	struct N { T item; N *left; N *right; }; \
+	N *N##_new(T item) \
 	{ \
-		N *s; \
-		s = calloc(1, sizeof(N)); \
+		N *s = calloc(1, sizeof(N)); \
+		if (s) { \
+			s->item = item; \
+		} \
 		return s; \
 	} \
 	\
-	void N##_free(N *s) \
+	void N##_free_all(N *s) \
 	{ \
 		if (s) { \
-			N##_free(s->left); \
-			n##_free(s->right); \
+			N##_free_all(s->left); \
+			N##_free_all(s->right); \
 			free(s); \
 		} \
 	} \
 	\
-	N##_node *N##_node_new(T item) \
+	N *N##_construct(T item, N *left, N *right) \
 	{ \
-		N *s = calloc(1, sizeof(N##_node)); \
+		N *s = calloc(1, sizeof(N)); \
 		if (s) { \
-			s->item = s; \
+			s->item = item; \
+			s->left = left; \
+			s->right = right; \
 		} \
 		return s; \
-	}
+	} \
+	\
+	size_t N##_size(const N *tree) \
+	{ \
+		if (tree) { \
+			return \
+				N##_size(tree->left) + \
+				N##_size(tree->right) + \
+				1; \
+		} else { \
+			return 0; \
+		} \
+	} \
 	struct N
 	
 #endif
